@@ -1,0 +1,12 @@
+The code in lib/newhope is taken from the New Hope source code, the rlwekex
+from the "Post-quantum key exchange for the TLS protocol from the ring
+learning with errors problem" paper implementation; see the accompanied paper.
+Some of the sources in these directories are slightly modified to perform
+bookkeeping to count the ring operations, or the files may only be copied
+partially.
+
+Use "make all-opcount" to only build the native, non-AVX2 implementation,
+useful in case the assembler/compiler does not support the flags. To build only
+the AVX2 version, run "make all-avx2".
+
+Running "make all" builds both.
