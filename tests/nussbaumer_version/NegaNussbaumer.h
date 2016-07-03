@@ -27,6 +27,7 @@ class NegaNussbaumer {
 public:
   /// Transformed polynomial
   typedef std::vector<Polynomial<RingElt>> Transformed;
+  typedef std::vector<Transformed> MassTransformed;
 
   NegaNussbaumer(std::size_t N);
 
@@ -35,6 +36,10 @@ public:
   Polynomial<RingElt> inverseTransform(const Transformed& trans) const;
 
   Transformed componentwise(const Transformed& t1, const Transformed& t2) const;
+
+  MassTransformed massTransform(const Polynomial<RingElt>& orig, bool slow) const;
+  static MassTransformed massComponentWise(const MassTransformed& fast, const MassTransformed& slow);
+  Polynomial<RingElt> massInverseTransform(const MassTransformed& trans);
 
   static Polynomial<RingElt> multiply(std::size_t N, const Polynomial<RingElt>& p1, const Polynomial<RingElt>& p2);
 
@@ -94,15 +99,6 @@ Polynomial<RingElt> NegaNussbaumer<RingElt>::multiply(
                                         const Polynomial<RingElt>& p1,
                                         const Polynomial<RingElt>& p2
                                                      ) {
-  // Trivial case modulo X^2 + 1.
-  if(N == 2) {
-    Polynomial<RingElt> ret(2);
-    RingElt t = p1[0]*(p2[0] + p2[1]);
-    ret[0] = t - (p1[0] + p1[1])*p2[1];
-    ret[1] = t + (p1[1] - p1[0])*p2[0];
-    return ret;
-  }
-
   // Otherwise, recurse into the algorithm again
   NegaNussbaumer<RingElt> nussbaumer(N);
   auto t1 = nussbaumer.transformSlow(p1, false);
@@ -116,19 +112,30 @@ Polynomial<RingElt> NegaNussbaumer<RingElt>::multiply(
  * Perform the componentwise multiplication of the transformed polynomials. One must be
  * transformed through the transformSlow method, the other through the transformFast
  * method.
- * @param[in] t1     The first transformed polynomial.
- * @param[in] t2     The second transformed polynomial.
+ * @param[in] slow   The slow-transformed polynomial.
+ * @param[in] fast   The fast-transformed polynomial.
  * @return The transformed result of the multiplication.
  */
 template<typename RingElt>
 typename NegaNussbaumer<RingElt>::Transformed NegaNussbaumer<RingElt>::componentwise(
-                                                                   const Transformed& t1,
-                                                                   const Transformed& t2
+                                                                   const Transformed& slow,
+                                                                   const Transformed& fast
                                                                                ) const {
+  // Special case where N = 2, where Nussbaumer's algorithm is not applicable.
+  if(n_ == 1) {
+    Transformed resTrans;
+    Polynomial<RingElt> res(2);
+    RingElt t = slow[0][0]*fast[0][2];
+    res[0] = t - slow[0][1]*fast[0][1];
+    res[1] = t + slow[0][2]*fast[0][0];
+    resTrans.push_back(res);
+    return resTrans;
+  }
+
   Transformed resTrans;
   resTrans.push_back(Polynomial<RingElt>(r_));
-  for(std::size_t i = 1; i < t1.size(); ++i) {
-    auto term = NegaNussbaumer<RingElt>::multiply(r_, t1[i], t2[i]);
+  for(std::size_t i = 1; i < slow.size(); ++i) {
+    auto term = NegaNussbaumer<RingElt>::multiply(r_, slow[i], fast[i]);
     resTrans.push_back(term);
   }
 
@@ -152,6 +159,17 @@ typename NegaNussbaumer<RingElt>::Transformed
                                             bool fixFactor
                                                                       ) const {
   assert(orig.getSize() == (1u << n_));
+
+  // Handle the special case N = 2, where another algorithm is used (with some pre-processing)
+  // We make 2 as the first componentwise multiplication is skipped.
+  if(n_ == 1) {
+    Transformed trans(1, Polynomial<RingElt>(3));
+    trans[0][0] = orig[0];
+    trans[0][1] = orig[0] + orig[1];
+    trans[0][2] = orig[1] - orig[0];
+    return trans;
+  }
+
   Transformed trans(2*m_, Polynomial<RingElt>(r_));
 
   // Correct the scale of the polynomial. Do so now, as this needs less steps then
@@ -238,6 +256,17 @@ typename NegaNussbaumer<RingElt>::Transformed
                                             const Polynomial<RingElt>& orig
                                                                       ) const {
   assert(orig.getSize() == (1u << n_));
+
+  // Prepare for another algorithm if N = 2.
+  if(n_ == 1) {
+    Transformed trans(1, Polynomial<RingElt>(3));
+    trans[0][0] = orig[0];
+    trans[0][1] = orig[1];
+    trans[0][2] = orig[0] + orig[1];
+    return trans;
+  }
+
+
   Transformed trans(2*m_, Polynomial<RingElt>(r_));
 
   // First get the polynomials to perform the fourier transform on. These are
@@ -297,6 +326,10 @@ template<typename RingElt>
 Polynomial<RingElt> NegaNussbaumer<RingElt>::inverseTransform(
                                                     const Transformed& trans
                                                               ) const {
+  // Special case for N = 2, where no actual inverse transform is needed
+  if(n_ == 1)
+    return trans[0];
+
   // Do the inverse FFT (through a DIT with unordered input)
   Transformed z(trans);
   std::size_t jMax = n_ >> 1;
@@ -346,6 +379,108 @@ Polynomial<RingElt> NegaNussbaumer<RingElt>::inverseTransform(
   }
 
   return res;
+}
+
+
+/**
+ * Perform all forward transforms we can do from the get-go, rather than postponing
+ * this to the recursive calls. This allows more work to be re-used.
+ * @param[in] orig     The original polynomial.
+ * @param[in] slow     true to use the slow transform, false for fast.
+ * @return    A mass-transformed collection.
+ */
+template<typename RingElt>
+typename NegaNussbaumer<RingElt>::MassTransformed
+NegaNussbaumer<RingElt>::massTransform(const Polynomial<RingElt>& orig,
+                                       bool slow) const {
+  size_t N = 1 << n_;
+
+  // Transform the original
+  MassTransformed last;
+  last.push_back(slow ? transformSlow(orig, true) : transformFast(orig));
+  if(N == 2)
+    return last;
+
+  // Transform all the transformed polynomials iteratively
+  N = r_;
+  while(true) {
+    NegaNussbaumer<RingElt> nb(N);
+    MassTransformed newTrans;
+    for(auto trans : last)
+      for(auto pol : trans)
+        newTrans.push_back(slow ? nb.transformSlow(pol, false) : nb.transformFast(pol));
+
+    last = std::move(newTrans);
+    if(N == 2)
+      break;
+    N = nb.r_;
+  }
+
+  return last;
+}
+
+
+/**
+ * Perform the base case of the iterative version of Nussbaumer's algorithm.
+ * @param[in] slow     A slow mass transformed set.
+ * @param[in] fast     A fast mass transformed set.
+ * @return    The transformed output, with no inverse transforms performed yet.
+ */
+template<typename RingElt>
+typename NegaNussbaumer<RingElt>::MassTransformed
+NegaNussbaumer<RingElt>::massComponentWise(const MassTransformed& slow, const MassTransformed& fast) {
+  // We can use multiply here, as the mass transformed outputs have 2 coefficients (not recursing)
+  MassTransformed result;
+  NegaNussbaumer<RingElt> nb(2);
+  for(std::size_t i = 0; i < fast.size(); ++i) {
+    result.push_back(nb.componentwise(slow[i], fast[i]));
+  }
+  return result;
+}
+
+
+/**
+ * Perform an inverse for the iterative approach to Nussbaumer's algorithm. The trans input should
+ * be the output from massComponentWise.
+ * @param[in] trans    The output of massComponentWise.
+ * @return    The output polynomial.
+ */
+template<typename RingElt>
+Polynomial<RingElt> NegaNussbaumer<RingElt>::massInverseTransform(const MassTransformed& trans) {
+  // Get the classes responsible for the deeper transformations
+  std::vector<NegaNussbaumer<RingElt>> nbList;
+  size_t N = r_;
+  nbList.push_back(*this);
+  while(1) {
+    NegaNussbaumer<RingElt> next(N);
+    nbList.push_back(next);
+    if(N == 2)
+      break;
+
+    N = next.r_;
+  }
+
+  // Perform the deeper level transformations
+  MassTransformed curMass = trans;
+  for(auto iter = nbList.rbegin(); iter + 1 != nbList.rend(); ++iter) {
+    MassTransformed nextMass;
+    size_t nextTransSize = 2*(iter + 1)->m_;
+
+    // Each transformed entry creates a polynomial that is input for the next inverse transform,
+    // of which we want "nextTransSize" entries.
+    Transformed curOutTrans;
+    for(auto curTrans : curMass) {
+      curOutTrans.push_back(iter->inverseTransform(curTrans));
+      if(curOutTrans.size() == nextTransSize) {
+        nextMass.push_back(curOutTrans);
+        curOutTrans.resize(0);
+      }
+    }
+
+    curMass = nextMass;
+  }
+
+  return inverseTransform(curMass[0]);
 }
 
 

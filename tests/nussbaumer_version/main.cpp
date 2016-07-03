@@ -27,8 +27,24 @@ int main() {
   std::cout << "Recurse: " << RingType::getOpCount().reset() << std::endl;
   auto result = nussbaumer.inverseTransform(resTrans);
   std::cout << "Inverse transform: " << RingType::getOpCount().reset() << std::endl;
+  std::cout << std::endl;
+
+  RingType::getOpCount().reset();
+  auto massTransSlow = nussbaumer.massTransform(p1, true);
+  std::cout << "Mass transform 1: " << RingType::getOpCount().reset() << std::endl;
+  auto massTransFast = nussbaumer.massTransform(p2, false);
+  std::cout << "Mass transform 2: " << RingType::getOpCount().reset() << std::endl;
+  auto resTrans2 = NegaNussbaumer<RingType>::massComponentWise(massTransSlow, massTransFast);
+  std::cout << "Base case: " << RingType::getOpCount().reset() << std::endl;
+  auto result2 = nussbaumer.massInverseTransform(resTrans2);
+  std::cout << "Mass inverse transform: " << RingType::getOpCount().reset() << std::endl;
+
 
   // Validate the test succeeded
+  if(result != result2) {
+    std::cerr << "TEST FAILED: inconsistency between recursive/iterative approach!" << std::endl;
+    return 1;
+  }
   if(result != naivemult_negacyclic(PARAM_N, p1, p2)) {
     std::cerr << "TEST FAILED: results not equal!" << std::endl;
     return 1;
