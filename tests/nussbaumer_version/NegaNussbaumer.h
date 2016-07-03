@@ -406,9 +406,11 @@ NegaNussbaumer<RingElt>::massTransform(const Polynomial<RingElt>& orig,
   while(true) {
     NegaNussbaumer<RingElt> nb(N);
     MassTransformed newTrans;
+
+    // Transform for the next level. Skip the first polynomial, which is always 0.
     for(auto trans : last)
-      for(auto pol : trans)
-        newTrans.push_back(slow ? nb.transformSlow(pol, false) : nb.transformFast(pol));
+      for(auto polIt = trans.begin() + 1; polIt != trans.end(); ++polIt)
+        newTrans.push_back(slow ? nb.transformSlow(*polIt, false) : nb.transformFast(*polIt));
 
     last = std::move(newTrans);
     if(N == 2)
@@ -469,11 +471,12 @@ Polynomial<RingElt> NegaNussbaumer<RingElt>::massInverseTransform(const MassTran
     // Each transformed entry creates a polynomial that is input for the next inverse transform,
     // of which we want "nextTransSize" entries.
     Transformed curOutTrans;
+    curOutTrans.push_back(Polynomial<RingElt>());  // The first entry is always 0
     for(auto curTrans : curMass) {
       curOutTrans.push_back(iter->inverseTransform(curTrans));
       if(curOutTrans.size() == nextTransSize) {
         nextMass.push_back(curOutTrans);
-        curOutTrans.resize(0);
+        curOutTrans.resize(1);
       }
     }
 
