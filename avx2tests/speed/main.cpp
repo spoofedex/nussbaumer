@@ -59,6 +59,7 @@ int main() {
   for(i = 0; i < NumTests + 1; ++i) {
     timing[i] = cpucycles();
     nussbaumer1024_forward(transformed1, input1);
+    componentwise32_64_prepare(transformed1);
   }
   nussbaumer1024_forward(transformed2, input2);
   printResults("Nussbaumer forward transform", timing, NumTests);
@@ -74,7 +75,6 @@ int main() {
   componentwise32_64_prepare(transformed2);
   for(i = 0; i < NumTests + 1; ++i) {
     timing[i] = cpucycles();
-    componentwise32_64_prepare(transformed1);
     componentwise32_64_run(result, transformed1, transformed2);
   }
   printResults("Componentwise multiplication", timing, NumTests);
