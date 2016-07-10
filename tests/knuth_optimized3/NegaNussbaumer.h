@@ -229,11 +229,14 @@ Polynomial<RingElt> NegaNussbaumer<RingElt>::inverseTransform(
   }
 
   // To calculate the inverse FFT we need the inverse of the correction factor
-  RingElt inverse;
-  if(!RingElt::getInverse(inverse, 2*m_)) {
+  RingElt inverseElt;
+  int inverse;
+  if(!RingElt::getInverse(inverseElt, 2*m_)) {
     std::cerr << "2m does not have an inverse in the given ring" << std::endl;
     exit(1);
   }
+
+  inverse = inverseElt.toInt();
 
   // Multiply with the inverse
   for(auto& p : z)

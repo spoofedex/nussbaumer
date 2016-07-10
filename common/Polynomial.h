@@ -34,7 +34,8 @@ public:
   const RingElt& operator[](std::size_t index) const;
   RingElt& operator[](std::size_t index);
 
-  const Polynomial<RingElt>& operator*=(const RingElt& scalar);
+  template<typename OtherT>
+  const Polynomial<RingElt>& operator*=(const OtherT& scalar);
 
   template<typename OtherRingElt>
   const Polynomial<RingElt>& operator*=(const Polynomial<OtherRingElt>& other);
@@ -140,9 +141,9 @@ bool operator==(const Polynomial<RingElt>& a, const Polynomial<OtherRingElt>& b)
  * @param[in] scalar      The scalar to multiply with.
  * @return    A reference to the polynomial, for operator chaining.
  */
-template<typename RingElt>
+template<typename RingElt> template<typename OtherElt>
 const Polynomial<RingElt>& Polynomial<RingElt>::operator*=(
-                                              const RingElt& scalar
+                                              const OtherElt& scalar
                                                           ) {
   for(std::size_t i = 0; i < getSize(); ++i)
     coefs_[i] *= scalar;

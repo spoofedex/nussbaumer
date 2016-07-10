@@ -108,7 +108,7 @@ void poly_pointwise(poly *r, const poly *a, const poly *b)
   IntWrapper<uint16_t> t;
   for(i=0;i<PARAM_N;i++)
   {
-    t       = montgomery_reduce((3186*b->v[i]).toInt()); /* t is now in Montgomery domain */
+    t       = montgomery_reduce(3186*b->v[i].toInt()); /* t is now in Montgomery domain */
     r->v[i] = montgomery_reduce((a->v[i] * t).toInt()); /* r->v[i] is back in normal domain */
   }
 }

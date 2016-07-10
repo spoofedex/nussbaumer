@@ -567,11 +567,14 @@ Polynomial<RingElt> NegaNussbaumer<RingElt>::rotatePolynomial(
 template<typename RingElt>
 Polynomial<RingElt> NegaNussbaumer<RingElt>::correct(const Polynomial<RingElt>& p) const {
   // To calculate the inverse FFT we need the inverse of the correction factor
-  RingElt inverse;
-  if(!RingElt::getInverse(inverse, getFactor())) {
+  RingElt inverseElt;
+  int inverse;
+  if(!RingElt::getInverse(inverseElt, getFactor())) {
     std::cerr << "Factor does not have an inverse in the given ring" << std::endl;
     exit(1);
   }
+
+  inverse = inverseElt.toInt();
 
   // Multiply with the inverse
   auto ret = p;

@@ -32,6 +32,7 @@ public:
   const IntWrapper<Type>& operator+=(const OtherType& e);
   const IntWrapper<Type>& operator-=(const IntWrapper<Type>& e);
   const IntWrapper<Type>& operator*=(const IntWrapper<Type>& e);
+  const IntWrapper<Type>& operator*=(const Type& e);
   const IntWrapper<Type>& operator&=(const IntWrapper<Type>& e);
   const IntWrapper<Type>& operator%=(const IntWrapper<Type>& e);
 
@@ -210,6 +211,15 @@ const IntWrapper<Type>& IntWrapper<Type>::operator*=(
   return *this;
 }
 
+template<typename Type>
+const IntWrapper<Type>& IntWrapper<Type>::operator*=(
+                                            const Type& e
+                                                            ) {
+  value_ *= e.value_;
+  opCountIntWrapper.countConstMult();
+  return *this;
+}
+
 template<typename Type1, typename Type2>
 auto operator*(const IntWrapper<Type1>& v1, const IntWrapper<Type2>& v2) {
   auto result = v1.toInt() * v2.toInt();
@@ -221,14 +231,14 @@ auto operator*(const IntWrapper<Type1>& v1, const IntWrapper<Type2>& v2) {
 template<typename Type1, typename Type2>
 auto operator*(const IntWrapper<Type1>& v1, const Type2& v2) {
   auto result = v1.toInt() * v2;
-  opCountIntWrapper.countMultiplication();
+  opCountIntWrapper.countConstMult();
   return build_intwrapper(result);
 }
 
 template<typename Type1, typename Type2>
 auto operator*(const Type1& v1, const IntWrapper<Type2>& v2) {
   auto result = v1 * v2.toInt();
-  opCountIntWrapper.countMultiplication();
+  opCountIntWrapper.countConstMult();
   return build_intwrapper(result);
 }
 

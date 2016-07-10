@@ -14,6 +14,10 @@ void OpCount::countMultiplication() {
   ++numMultiplications_;
 }
 
+void OpCount::countConstMult() {
+  ++numConstMults_;
+}
+
 void OpCount::countDivision() {
   ++numDivisions_;
 }
@@ -34,6 +38,10 @@ std::size_t OpCount::getNumMultiplications() const {
   return numMultiplications_;
 }
 
+std::size_t OpCount::getNumConstMults() const {
+  return numConstMults_;
+}
+
 std::size_t OpCount::getNumDivisions() const {
   return numDivisions_;
 }
@@ -49,6 +57,7 @@ std::size_t OpCount::getNumBitwise() const {
 std::ostream& operator<<(std::ostream& oss, const OpCount& opCount) {
   oss << opCount.getNumAdditions() << " additions, "
       << opCount.getNumMultiplications() << " multiplications, "
+      << opCount.getNumConstMults() << " constant multiplications, "
       << opCount.getNumDivisions() << " divisions, "
       << opCount.getNumShifts() << " shifts, "
       << opCount.getNumBitwise() << " bitwise";

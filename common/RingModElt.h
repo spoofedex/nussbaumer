@@ -28,6 +28,7 @@ public:
   const RingModElt<Modulus>& operator+=(const RingModElt<Modulus>& e);
   const RingModElt<Modulus>& operator-=(const RingModElt<Modulus>& e);
   const RingModElt<Modulus>& operator*=(const RingModElt<Modulus>& e);
+  const RingModElt<Modulus>& operator*=(const int& e);
 
   const RingModElt<Modulus> operator-() const;
 
@@ -123,6 +124,16 @@ const RingModElt<Modulus>& RingModElt<Modulus>::operator*=(
                                                             ) {
   value_ = (value_ * e.value_) % Modulus;
   opCount_.countMultiplication();
+  return *this;
+}
+
+
+template<int Modulus>
+const RingModElt<Modulus>& RingModElt<Modulus>::operator*=(
+                                                      const int& e
+                                                            ) {
+  value_ = (value_ * e) % Modulus;
+  opCount_.countConstMult();
   return *this;
 }
 

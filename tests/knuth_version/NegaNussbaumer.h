@@ -195,11 +195,14 @@ Polynomial<RingElt> NegaNussbaumer<RingElt>::inverseTransform(
                                                     const Transformed& trans
                                                               ) const {
   // To calculate the inverse FFT we need the inverse of 2
-  RingElt inverse2;
-  if(!RingElt::getInverse(inverse2, 2)) {
+  RingElt inverse2Elt;
+  int inverse2;
+  if(!RingElt::getInverse(inverse2Elt, 2)) {
     std::cerr << "2 does not have an inverse in the given ring" << std::endl;
     exit(1);
   }
+
+  inverse2 = inverse2Elt.toInt();
 
   // Do the inverse FFT
   Transformed z(trans);

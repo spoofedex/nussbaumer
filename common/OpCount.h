@@ -18,12 +18,14 @@ public:
 
   void countAddition();
   void countMultiplication();
+  void countConstMult();
   void countDivision();
   void countShift();
   void countBitwise();
 
   std::size_t getNumAdditions() const;
   std::size_t getNumMultiplications() const;
+  std::size_t getNumConstMults() const;
   std::size_t getNumDivisions() const;
   std::size_t getNumShifts() const;
   std::size_t getNumBitwise() const;
@@ -31,7 +33,8 @@ public:
 public:
   std::size_t numAdditions_         = 0;
   std::size_t numMultiplications_   = 0;
-  std::size_t numDivisions_        = 0;
+  std::size_t numConstMults_        = 0;
+  std::size_t numDivisions_         = 0;
   std::size_t numShifts_            = 0;
   std::size_t numBitwise_           = 0;
 };
