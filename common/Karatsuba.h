@@ -1,10 +1,9 @@
-//
-//  Karatsuba.h
-//  Thesis
-//
-//  Created by Gerben on 17-04-16.
-//  Copyright © 2016 Gerben van der Lubbe. All rights reserved.
-//
+/**
+ * @file Karatsuba.h
+ * @author Gerben van der Lubbe
+ *
+ * Karatsuba algorithm for polynomial multiplication.
+ */
 
 #ifndef KARATSUBA_H
 #define KARATSUBA_H

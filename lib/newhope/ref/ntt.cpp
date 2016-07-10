@@ -85,7 +85,7 @@ void ntt(IntWrapper<uint16_t> * a, const uint16_t* omega)
         W = omega[jTwiddle++];
         temp = a[j];
         a[j] = (temp + a[j + distance]); // Omit reduction (be lazy)
-        a[j + distance] = montgomery_reduce((W * (IntWrapper<uint32_t>(temp) + 3*PARAM_Q - a[j + distance])).toInt());
+        a[j + distance] = montgomery_reduce((W * (IntWrapper<uint32_t>(temp) + 3*PARAM_Q - IntWrapper<uint32_t>(a[j + distance]))).toInt());
       }
     }
 
@@ -99,7 +99,7 @@ void ntt(IntWrapper<uint16_t> * a, const uint16_t* omega)
         W = omega[jTwiddle++];
         temp = a[j];
         a[j] = barrett_reduce((temp + a[j + distance]).toInt());
-        a[j + distance] = montgomery_reduce((W * (IntWrapper<uint32_t>(temp) + 3*PARAM_Q - a[j + distance])).toInt());
+        a[j + distance] = montgomery_reduce((W * (IntWrapper<uint32_t>(temp) + 3*PARAM_Q - IntWrapper<uint32_t>(a[j + distance]))).toInt());
       }
     }
   }

@@ -1,10 +1,9 @@
-//
-//  BitManip.h
-//  Thesis
-//
-//  Created by Gerben on 26-02-16.
-//  Copyright © 2016 Gerben van der Lubbe. All rights reserved.
-//
+/**
+ * @file BitManip.h
+ * @author Gerben van der Lubbe
+ *
+ * Bit manipulation function.
+ */
 
 #ifndef BITMANIP_H
 #define BITMANIP_H

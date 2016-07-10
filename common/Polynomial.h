@@ -1,10 +1,10 @@
-//
-//  Polynomial.h
-//  Thesis
-//
-//  Created by Gerben on 11-02-16.
-//  Copyright © 2016 Gerben van der Lubbe. All rights reserved.
-//
+/**
+ * @file Polynomial.h
+ * @author Gerben van der Lubbe
+ *
+ * File to deal with polynomials. These polynomials are basically a vector: they have a size, and no real "degree"
+ * we care about. Just a few more operators are provided that are logical in the case of polynomials.
+ */
 
 #ifndef POLYNOMIAL_H
 #define POLYNOMIAL_H
@@ -16,6 +16,9 @@
 
 #include "Util.h"
 
+/**
+ * Class to store a polynomial with coefficients in RingElt.
+ */
 template<typename RingElt>
 class Polynomial : public Multiplies<Polynomial<RingElt>, RingElt>,
                    public Adds<Polynomial<RingElt>>,
@@ -70,6 +73,10 @@ Polynomial<RingElt>::Polynomial(const std::initializer_list<RingElt>& elts)
 {}
 
 
+/**
+ * Copy the contents of one polynomial to another.
+ * @param[in] other    The polynomial to copy.
+ */
 template<typename RingElt> template<typename OtherType>
 Polynomial<RingElt>::Polynomial(const Polynomial<OtherType>& other) {
   coefs_.resize(other.getSize());
@@ -86,6 +93,7 @@ template<typename RingElt>
 void Polynomial<RingElt>::setSize(std::size_t size) {
   coefs_.resize(size, RingElt());
 }
+
 
 /**
  * Get the size of the polynomial.
@@ -106,6 +114,7 @@ template<typename RingElt>
 const RingElt& Polynomial<RingElt>::operator[](std::size_t index) const {
   return coefs_.at(index);
 }
+
 
 /**
  * Get the specified coefficient to retrieve.
@@ -136,6 +145,7 @@ bool operator==(const Polynomial<RingElt>& a, const Polynomial<OtherRingElt>& b)
   return true;
 }
 
+
 /**
  * Multiply a polynomial by a scalar.
  * @param[in] scalar      The scalar to multiply with.
@@ -150,6 +160,13 @@ const Polynomial<RingElt>& Polynomial<RingElt>::operator*=(
   return *this;
 }
 
+
+/**
+ * Calculates the multiplication of two polynomials, using the classical algorithm.
+ * @param[in] p1       The first polynomial.
+ * @param[in] p2       The second polynomial.
+ * @return    The product of the two polynomials (its size set to fit this)
+ */
 template<typename RingElt1, typename RingElt2>
 auto operator*(const Polynomial<RingElt1>& p1, const Polynomial<RingElt2>& p2) {
   typedef decltype(p1[0]*p2[0]) RetType;
@@ -184,6 +201,7 @@ const Polynomial<RingElt>& Polynomial<RingElt>::operator*=(
       coefs_[i + j] += old[i]*other[j];
   return *this;
 }
+
 
 /**
  * Adds another polynomial to this one. The resulting size is the maximum
@@ -225,6 +243,10 @@ const Polynomial<RingElt>& Polynomial<RingElt>::operator-=(
 }
 
 
+/**
+ * Unary sign inversion operator.
+ * @return   The sign inversed value.
+ */
 template<typename RingElt>
 Polynomial<RingElt> Polynomial<RingElt>::operator-() const {
   Polynomial<RingElt> ret(*this);
@@ -232,6 +254,7 @@ Polynomial<RingElt> Polynomial<RingElt>::operator-() const {
     ret[i] = -ret[i];
   return ret;
 }
+
 
 /**
  * Print the polynomial onto the output stream.

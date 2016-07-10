@@ -1,3 +1,10 @@
+/**
+ * @file NegaConvo.h
+ * @author Gerben van der Lubbe
+ *
+ * Naive algorithm for calculating the negacyclic convolution; just to use as a check.
+ */
+
 #ifndef NEGACONVO_H
 #define NEGACONVO_H
 

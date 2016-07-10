@@ -5,6 +5,9 @@
 #include "newhope/ref/poly.h"
 
 
+/**
+ * Convert a polynomial in New Hope's form to our Polynomial type.
+ */
 Polynomial<std::uint16_t> poly::toPolynomial() {
   Polynomial<std::uint16_t> ret(PARAM_N);
   for(std::size_t i = 0; i < PARAM_N; ++i)
@@ -12,6 +15,10 @@ Polynomial<std::uint16_t> poly::toPolynomial() {
   return ret;
 }
 
+
+/**
+ * Create a random polynomial.
+ */
 void poly_create_random(poly* p) {
   static std::ifstream urandom("/dev/urandom", std::ios_base::binary);
   if(!urandom) {

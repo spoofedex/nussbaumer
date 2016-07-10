@@ -1,10 +1,9 @@
-//
-//  NegaNussbaumer.h
-//  Thesis
-//
-//  Created by Gerben on 13-02-16.
-//  Copyright © 2016 Gerben van der Lubbe. All rights reserved.
-//
+/**
+ * @file NegaNussbaumer.h
+ * @author Gerben van der Lubbe
+ *
+ * File containing Nussbaumer's negacyclic convolution algorithm (see paper).
+ */
 
 #ifndef NEGANUSSBAUMER_H
 #define NEGANUSSBAUMER_H
