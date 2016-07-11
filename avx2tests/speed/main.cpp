@@ -77,7 +77,7 @@ int main() {
     timing[i] = cpucycles();
     componentwise32_64_run(result, transformed1, transformed2);
   }
-  printResults("Componentwise multiplication", timing, NumTests);
+  printResults("Pointwise multiplication", timing, NumTests);
 
   // Run the NTT forward transform timing tests
   for(i = 0; i < NumTests + 1; ++i) {
