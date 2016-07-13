@@ -19,6 +19,7 @@
  */
 template<int Modulus>
 class RingModElt : public Multiplies<RingModElt<Modulus>>,
+                   public Multiplies<RingModElt<Modulus>, int>,
                    public Adds<RingModElt<Modulus>>,
                    public Subtracts<RingModElt<Modulus>>,
                    public CompEquality<RingModElt<Modulus>> {
