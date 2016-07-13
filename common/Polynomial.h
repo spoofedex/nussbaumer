@@ -21,6 +21,7 @@
  */
 template<typename RingElt>
 class Polynomial : public Multiplies<Polynomial<RingElt>, RingElt>,
+                   public Multiplies<Polynomial<RingElt>, int>,
                    public Adds<Polynomial<RingElt>>,
                    public Subtracts<Polynomial<RingElt>>,
                    public CompEquality<Polynomial<RingElt>> {
