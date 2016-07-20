@@ -60,19 +60,19 @@ public:
   const IntWrapper<Type>& operator<<=(int p);
   const IntWrapper<Type>& operator>>=(int p);
 
-  friend auto operator+(const IntWrapper& v1, const IntWrapper& v2) {
+  friend IntWrapper operator+(const IntWrapper& v1, const IntWrapper& v2) {
     auto result = v1.toInt() + v2.toInt();
     opCountIntWrapper.countAddition();
     return build_intwrapper(result);
   }
 
-  friend auto operator-(const IntWrapper& v1, const IntWrapper& v2) {
+  friend IntWrapper operator-(const IntWrapper& v1, const IntWrapper& v2) {
     auto result = v1.toInt() - v2.toInt();
     opCountIntWrapper.countAddition();
     return build_intwrapper(result);
   }
 
-  friend auto operator&(const IntWrapper& v1, const IntWrapper& v2) {
+  friend IntWrapper operator&(const IntWrapper& v1, const IntWrapper& v2) {
     auto result = v1.toInt() & v2.toInt();
     opCountIntWrapper.countBitwise();
     return build_intwrapper(result);
