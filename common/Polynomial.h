@@ -195,11 +195,16 @@ const Polynomial<RingElt>& Polynomial<RingElt>::operator*=(
                                                           ) {
   Polynomial<RingElt> old(*this);
 
-  // Create a new polynomial and calculate the result
+  // Create a new polynomial that is able to store the results
   *this = Polynomial<RingElt>(old.getSize() + other.getSize() - 1);
+
+  // Perform the calculations; don't perform first additions, but initialize the values.
   for(std::size_t i = 0; i < old.getSize(); ++i)
     for(std::size_t j = 0; j < other.getSize(); ++j)
-      coefs_[i + j] += old[i]*other[j];
+      if(i == 0 || j == other.getSize() - 1)
+        coefs_[i + j] = old[i]*other[j];             // First time set; initialize.
+      else
+        coefs_[i + j] += old[i]*other[j];            // Already set; add
   return *this;
 }
 
